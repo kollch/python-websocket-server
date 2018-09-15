@@ -5,23 +5,26 @@
 </head>
 <body>
   <input type="text" id="input" />
-  <button type="button" onclick="submit()">Submit</button>
+  <button type="button" id="submit" onclick="submit()" style="display: none;">Submit</button>
 </body>
 <script>
+const socket = new WebSocket('ws://localhost:8888');
+socket.onopen = e => {
+  document.getElementById("submit").style.display = "block";
+  console.log("Ready to start sending.");
+};
+
 console.log("Starting program");
 function submit() {
   const input = document.getElementById("input");
   const value = input.value;
   input.value = "";
-  console.log(value);
-  const socket = new WebSocket('ws://localhost:8888');
-  socket.addEventListener('open', event => {
-    console.log(`Sending '${value}' to the server`);
-    socket.send(value);
-  });
-  socket.addEventListener('message', event => {
-    console.log(`Message from server: '${event.data}'`);
-  });
+  socket.onmessage = e => {
+    console.log(`Message from server: '${e.data}'`);
+  };
+  console.log(`Sending '${value}' to the server`);
+  socket.send(value);
+  console.log("Exiting function");
 }
 </script>
 </html>
